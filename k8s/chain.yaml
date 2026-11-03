@@ -14,7 +14,17 @@ spec:
         - name: service-c
           image: localhost:5000/service-c:1.0
           imagePullPolicy: IfNotPresent
+          env:                                # où le compteur est écrit
+            - name: COUNTER_FILE
+              value: /data/counter.txt
+          volumeMounts:                       # ou c'est monté
+            - name: data
+              mountPath: /data
           ports: [{ containerPort: 8080 }]
+      volumes:                              
+        - name: data
+          persistentVolumeClaim:
+            claimName: c-data
 ---
 apiVersion: v1
 kind: Service
