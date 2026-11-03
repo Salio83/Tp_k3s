@@ -65,3 +65,25 @@ et le compteur continue au lieu de repartir à zéro.
 Au premier déploiement, A et B étaient en `CrashLoopBackOff`. `kubectl logs` a montré
 `NEXT_URL is not set` : j'avais oublié la variable d'environnement définie dans le `compose.yaml`.
 Je l'ai ajoutée, puis cette configuration a été déplacée dans la ConfigMap.
+
+### 9. Ingress
+Un Service ne route qu'en TCP et ne sait pas lire une URL. J'ai donc ajouté un Ingress
+(`k8s/ingress.yaml`), géré par Traefik, le controller fourni avec k3s. Il expose une seule
+entrée HTTP et envoie `/` vers le Service de A. B et C restent internes, comme demandé.
+*Pourquoi : un seul point d'entrée HTTP, qui pourra router par chemin ou par hôte et gérer le TLS.*
+
+**Problème rencontré** : l'Ingress répondait « Bad Gateway ». Des tests depuis des Pods temporaires
+ont montré que, sur cette machine, les Pods ne peuvent pas se joindre directement par leur IP,
+alors qu'ils se joignent par le nom d'un Service. Or Traefik contacte par défaut les IP des Pods.
+J'ai ajouté l'annotation `traefik.ingress.kubernetes.io/service.nativelb: "true"` sur le Service de A,
+pour que Traefik passe par l'adresse du Service.
+
+**Vérification**
+```
+$ kubectl get ingress -n tpk3s
+NAME            CLASS     HOSTS   ADDRESS          PORTS   AGE
+tpk3s-ingress   traefik   *       10.247.118.173   80      …
+
+$ curl http://localhost:8080/
+[{"name":"Service a"},{"name":"Service b"},{"name":"Service c","count":10}]%  
+```
