@@ -1,0 +1,26 @@
+services:
+  service-a:
+    build: ./service-a
+    ports:
+      - "8082:8082"        
+    environment:
+      NEXT_URL: http://service-b:8081
+    depends_on:
+      - service-b
+
+  service-b:
+    build: ./service-b  
+    environment:
+      NEXT_URL: http://service-c:8080
+    depends_on:
+      - service-c
+
+  service-c:
+    build: ./service-c 
+    environment:
+      COUNTER_FILE: /data/counter.txt
+    volumes:
+      - c-data:/data 
+
+volumes:
+  c-data:
