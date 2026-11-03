@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chain-config
+data:
+  A_NEXT_URL: "http://service-b:8081"
+  B_NEXT_URL: "http://service-c:8080"
+  COUNTER_FILE: "/data/counter.txt"
