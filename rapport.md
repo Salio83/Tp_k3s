@@ -35,3 +35,8 @@ Les 3 Pods tournent et la requête traverse toute la chaîne.
 **Problème rencontré** : au premier déploiement, `service-a` et `service-b` plantaient
 (`CrashLoopBackOff`). `kubectl logs` a montré `NEXT_URL is not set` : j'avais oublié
 la variable d'environnement. Après l'avoir ajoutée, j'ai refait `kubectl apply`.
+
+**Persistance du compteur de C**
+J'ai créé un PersistentVolumeClaim (`c-data`, 100 Mi) monté sur `/data` dans le Pod de C,
+et défini `COUNTER_FILE=/data/counter.txt`. Test : après `kubectl delete pod -l app=service-c`,
+le Pod est recréé et le compteur continue (2 → 4) au lieu de repartir à zéro.
